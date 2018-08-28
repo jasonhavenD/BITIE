@@ -1,0 +1,111 @@
+{% extends "basic.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block head %}
+    {{ super() }}
+    <!-- 第三方插件 -->
+    <link href={{ url_for('static',filename="css/plugins/footable/footable.core.css") }} rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+    <div class="row wrapper border-bottom white-bg page-heading">
+        <div class="col-sm-4">
+            <h2>常用-<strong>组会汇报</strong></h2>
+            <ol class="breadcrumb">
+                <li>
+                    <a href="../index.html">主页</a>
+                </li>
+                <li>
+                    <strong>组会汇报</strong>
+                </li>
+            </ol>
+        </div>
+        <div class="col-sm-8">
+            <div class="title-action">
+                <a href="../main/main.html" class="btn btn-primary">打开主页</a>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>常用组会报告</h5>
+                </div>
+                <div class="ibox-content">
+                    <table class="footable table table-stripped toggle-arrow-tiny" data-page-size="10">
+                        <thead>
+                        <tr>
+                            <th data-toggle="true">组会报告</th>
+                            <th>类型</th>
+                            <th data-hide="all">日期</th>
+                            <th data-hide="all">来源</th>
+                            <th data-hide="all">简介</th>
+                            <th>操作</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td>命名实体识别</td>
+                            <td>实体识别</td>
+                            <td>2018年６月</td>
+                            <td>ACL2018</td>
+                            <td>使用BiLSTM+CRF实现了命名实体识别</td>
+                            <td><a href="/BITIE/download/meeting/ner.ppt"><i class="fa fa-download"></i> 下载</a></td>
+                        </tr>
+                        <tr>
+                            <td>命名实体识别</td>
+                            <td>实体识别</td>
+                            <td>2018年６月</td>
+                            <td>ACL2018</td>
+                            <td>使用BiLSTM+CRF实现了命名实体识别</td>
+                            <td><a href="/BITIE/download/meeting/ner.ppt"><i class="fa fa-download"></i> 下载</a></td>
+                        </tr><tr>
+                            <td>命名实体识别</td>
+                            <td>实体识别</td>
+                            <td>2018年６月</td>
+                            <td>ACL2018</td>
+                            <td>使用BiLSTM+CRF实现了命名实体识别</td>
+                            <td><a href="/BITIE/download/meeting/ner.ppt"><i class="fa fa-download"></i> 下载</a></td>
+                        </tr><tr>
+                            <td>命名实体识别</td>
+                            <td>实体识别</td>
+                            <td>2018年６月</td>
+                            <td>ACL2018</td>
+                            <td>使用BiLSTM+CRF实现了命名实体识别</td>
+                            <td><a href="/BITIE/download/meeting/ner.ppt"><i class="fa fa-download"></i> 下载</a></td>
+                        </tr>
+                        </tbody>
+                        <tfoot>
+                        <tr>
+                            <td colspan="5">
+                                <ul class="pagination pull-right"></ul>
+                            </td>
+                        </tr>
+                        </tfoot>
+                    </table>
+
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block footer %}
+    <!-- 全局js -->
+    <script src={{ url_for('static',filename="js/jquery.min.js")}}></script>
+    <script src={{ url_for('static',filename="js/bootstrap.min.js")}}></script>
+    <!-- 自定义js -->
+    <script src={{ url_for('static',filename="js/content.js")}}></script>
+    <!-- 自定义js -->
+    <script src={{ url_for('static',filename="js/content.js") }}></script>
+    <!--数据下载-->
+    <script src={{ url_for('static',filename="js/plugins/footable/footable.all.min.js") }}></script>
+    <!-- 自定义js -->
+    <script src={{ url_for('static',filename="js/content.js") }}></script>
+    <script>
+        $(document).ready(function () {
+            $('.footable').footable();
+        });
+    </script>
+{% endblock %}

@@ -9,6 +9,7 @@
    Change Activity:18-8-15:
 -------------------------------------------------
 """
+
 from log import Logger
 import mimetypes
 import os
@@ -17,10 +18,14 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-__dir__ = ['404.html', '500.html', 'main.html', 'index.html', 'keyword.html', 'main_keyword.html', 'main_word_embedding.html','ner.html',
-           're.html', 'dataset.html', 'text_classification.html', 'topic_detection.html', 'word_embedding.html',
-           'naming_entity_recognize',
-           'download', 'upload', 'keyword_extract','word_similarity','word_most_similar']
+
+from views.init_main import init_main
+app.register_blueprint(init_main,url_prefix='/BITIE/main')
+
+from views.init_page import init_page
+app.register_blueprint(init_page,url_prefix='/BITIE')
+
+
 
 '''
 系统服务管理：日志，请求装饰器监听
@@ -42,133 +47,12 @@ def before_request():
 
 @app.errorhandler(404)
 def page_not_found(error):
-	return render_template('404.html'), 404
+	return render_template('system/404.html'), 404
 
 
 @app.errorhandler(500)
 def server_interval(error):
-	return render_template('500.html'), 500
-
-
-'''
-首页的右侧内部页面定义
-'''
-
-
-@app.route('/BITIE/main.html')
-def main():
-	return render_template('main.html')
-
-
-@app.route('/BITIE/main_word_embedding.html')
-def main_word_embedding():
-	return render_template('main_word_embedding.html')
-
-
-@app.route('/BITIE/main_keyword.html')
-def main_keyword():
-	return render_template('main_keyword.html')
-
-
-@app.route('/BITIE/main_ner.html')
-def main_ner():
-	return render_template('main_ner.html')
-
-
-@app.route('/BITIE/main_re.html')
-def main_re():
-	return render_template('main_re.html')
-
-
-@app.route('/BITIE/main_topic.html')
-def main_topic():
-	return render_template('main_topic.html')
-
-
-@app.route('/BITIE/main_text.html')
-def main_text():
-	return render_template('main_text.html')
-	return render_template('main_re.html')
-
-
-'''
-左侧栏目方法定义
-'''
-
-
-@app.route('/BITIE/word_embedding.html')
-def word_embedding():
-	'''
-	文本分类
-	:return:
-	'''
-	return render_template('word_embedding.html')
-
-
-@app.route('/BITIE/text_classification.html')
-def text_classification():
-	'''
-	文本分类
-	:return:
-	'''
-	return render_template('text_classification.html')
-
-
-@app.route('/BITIE/keyword.html')
-def keyword():
-	'''
-	关键字提取
-	:return:
-	'''
-	return render_template('keyword.html')
-
-
-@app.route('/BITIE/ner.html')
-def ner():
-	'''
-	命名实体识别
-	:return:
-	'''
-	return render_template('ner.html')
-
-
-@app.route('/BITIE/re.html')
-def re():
-	'''
-	实体关系抽取
-	:return:
-	'''
-	return render_template('re.html')
-
-
-@app.route('/BITIE/topic_detection.html')
-def topic_detection():
-	'''
-	事件抽取
-	:return:
-	'''
-	return render_template('topic_detection.html')
-
-
-@app.route('/BITIE/dataset.html')
-def dataset():
-	'''
-	常用数据集下载
-	:return:
-	'''
-	return render_template('dataset.html')
-
-
-@app.route('/BITIE')
-@app.route('/BITIE/')
-@app.route('/BITIE/index')
-@app.route('/BITIE/index.html')
-def index():
-	'''
-	首页
-	:return:
-	'''
-	return render_template('index.html')  # 使用模板会有动画失效的问题
+	return render_template('system/500.html'), 500
 
 
 '''
@@ -186,17 +70,18 @@ upload_path = os.path.join(basepath, UPLOAD_FOLDER)
 DOWNLOAD_FOLDER = 'download'
 
 
-@app.route('/BITIE/download/<filename>', methods=['GET'])
-def download(filename):
+@app.route('/BITIE/download/<category>/<filename>', methods=['GET'])
+def download(category,filename):
 	app.logger.debug('download_file...')
-	if os.path.exists(os.path.join(DOWNLOAD_FOLDER, filename)) and os.path.isfile(
-			os.path.join(DOWNLOAD_FOLDER, filename)):
-		response = make_response(send_from_directory(DOWNLOAD_FOLDER, filename, as_attachment=True))
+	directory=os.path.join(basepath,DOWNLOAD_FOLDER,category)
+	file_path=os.path.join(directory,filename)
+	if os.path.exists(file_path) and os.path.isfile(file_path):
+		response = make_response(send_from_directory(directory, filename, as_attachment=True))
 		mime_type = mimetypes.guess_type(filename)[0]
 		response.headers['Content-Type'] = mime_type
 		response.headers["Content-Disposition"] = "attachment; filename={};".format(filename.encode().decode('latin-1'))
 		return response
-	return render_template('404.html')
+	return render_template('system/404.html')
 
 
 # 用于判断文件后缀
@@ -251,11 +136,11 @@ def upload():
 
 
 '''
-业务处理
+业务处理－信息抽取基础
 '''
 
 '''
-关键字提取
+信息抽取基础－关键字提取
 '''
 from keyword_extract import tfidf4zh, tfidf4en, textrank4zh, textrank4en
 
@@ -313,7 +198,7 @@ def keyword_extract():
 
 
 '''
-命名实体识别
+信息抽取基础－命名实体识别
 '''
 from ner import stanford_ner
 
@@ -352,7 +237,7 @@ def naming_entity_recognize():
 
 
 '''
-词向量
+信息抽取基础－词向量
 '''
 from word_embedding import similarity, most_similar
 
@@ -382,4 +267,28 @@ def word_most_similar():
 	show_num = int(request.form.get('show_num', 5))
 
 	data['result'], data['status'] = most_similar(word,topn=show_num)
+	return jsonify(data)
+
+'''
+业务处理－科技情报挖掘
+'''
+from tag_generating.tag_auto_generating import process
+
+@app.route("/BITIE/tag_auto_generating",methods=["POST"])
+def tag_auto_generating():
+	app.logger.debug('tag_auto_generating...')
+	data = {}
+	data['result'] = []
+	data['status'] = False
+
+	title = request.form.get('title', 'hello,world')
+	text = request.form.get('text', 'hello,world')
+	input_type = int(request.form.get('input_type', 0))
+
+	if input_type == 0:  # textarea input
+		data['result'],  data['status'] = process(title,text)
+	elif input_type == 1:  # file input
+		text = open(os.path.join(UPLOAD_FOLDER, 'tmp.txt'), 'r').read()
+		data['result'], data['status'] = process(title,text)
+
 	return jsonify(data)

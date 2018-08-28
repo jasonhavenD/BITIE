@@ -2,14 +2,14 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name:test
+   File Name:tag_auto_generating
    Author:jasonhaven
-   date:18-8-16
+   date:18-8-28
 -------------------------------------------------
-   Change Activity:18-8-16:
+   Change Activity:18-8-28:
 -------------------------------------------------
 """
-import keyword_extract
 
-if __name__ == '__main__':
-    print(keyword_extract.extract('',10,'lda',0,'chinese'))
+def process(title,text):
+	words=['a','b','c']
+	return '\n'.join(words),True
