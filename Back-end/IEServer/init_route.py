@@ -13,7 +13,7 @@
 from log import Logger
 import mimetypes
 import os
-from flask import Flask, make_response, render_template, send_from_directory, request, flash, jsonify, url_for
+from flask import Flask, make_response, render_template, send_from_directory, request, flash, jsonify, url_for,redirect
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -25,10 +25,13 @@ app.register_blueprint(init_main,url_prefix='/BITIE/main')
 from views.init_page import init_page
 app.register_blueprint(init_page,url_prefix='/BITIE')
 
+from views.init_system import init_system
+app.register_blueprint(init_system,url_prefix='/BITIE/system')
+
 
 
 '''
-系统服务管理：日志，请求装饰器监听
+系统服务管理：日志，请求装饰器监听,登录，注册
 '''
 
 logger = Logger(isclean=True).get_logger()
@@ -47,12 +50,13 @@ def before_request():
 
 @app.errorhandler(404)
 def page_not_found(error):
-	return render_template('system/404.html'), 404
+	return redirect(url_for('init_system.page_not_found'))
 
 
 @app.errorhandler(500)
 def server_interval(error):
-	return render_template('system/500.html'), 500
+	return redirect(url_for('init_system.server_interval'))
+
 
 
 '''
@@ -81,7 +85,7 @@ def download(category,filename):
 		response.headers['Content-Type'] = mime_type
 		response.headers["Content-Disposition"] = "attachment; filename={};".format(filename.encode().decode('latin-1'))
 		return response
-	return render_template('system/404.html')
+	return redirect(url_for('init_system.page_not_found'))
 
 
 # 用于判断文件后缀
@@ -272,7 +276,7 @@ def word_most_similar():
 '''
 业务处理－科技情报挖掘
 '''
-from tag_generating.tag_auto_generating import process
+from tag_generating.tag_auto_generating import process  as tag_process
 
 @app.route("/BITIE/tag_auto_generating",methods=["POST"])
 def tag_auto_generating():
@@ -286,9 +290,27 @@ def tag_auto_generating():
 	input_type = int(request.form.get('input_type', 0))
 
 	if input_type == 0:  # textarea input
-		data['result'],  data['status'] = process(title,text)
+		data['result'],  data['status'] = tag_process(title,text)
 	elif input_type == 1:  # file input
 		text = open(os.path.join(UPLOAD_FOLDER, 'tmp.txt'), 'r').read()
-		data['result'], data['status'] = process(title,text)
+		data['result'], data['status'] = tag_process(title,text)
+
+	return jsonify(data)
+
+'''
+业务处理－实体扩展
+'''
+from entity_extend.entity_extend import process as entity_process
+@app.route("/BITIE/entity_extend",methods=["POST"])
+def entity_extend():
+	app.logger.debug('entity_extend...')
+	data = {}
+	data['result'] = []
+	data['status'] = False
+
+	words = request.form.get('words', 'hello;world')
+	app.logger.debug(words)
+
+	data['result'],data['status']=entity_process(words.split())
 
 	return jsonify(data)

@@ -1,39 +1,22 @@
-<!DOCTYPE html>
-<html>
+{% extends "basic.html" %}
 
-<head>
+{% block title %}404{% endblock %}
 
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+{% block head %}
+    {{ super() }}
+{% endblock %}
 
-
-    <title> - 登录</title>
-    <meta name="keywords" content="">
-    <meta name="description" content="">
-
-    <link rel="shortcut icon" href="favicon.ico"> <link href="css/bootstrap.min.css?v=3.3.6" rel="stylesheet">
-    <link href="css/font-awesome.css?v=4.4.0" rel="stylesheet">
-
-    <link href="css/animate.css" rel="stylesheet">
-    <link href="css/style.css?v=4.1.0" rel="stylesheet">
-    <!--[if lt IE 9]>
-    <meta http-equiv="refresh" content="0;ie.html" />
-    <![endif]-->
-    <script>if(window.top !== window.self){ window.top.location = window.location;}</script>
-</head>
-
-<body class="gray-bg">
-
+{% block content %}
     <div class="middle-box text-center loginscreen  animated fadeInDown">
         <div>
             <div>
 
-                <h1 class="logo-name">h</h1>
+                <h1 class="logo-name" >NLP</h1>
 
             </div>
-            <h3>欢迎使用 hAdmin</h3>
+            <h3>欢迎使用 自然语言处理技术验证平台</h3>
 
-            <form class="m-t" role="form" action="index.html">
+            <form class="m-t" role="form" action="/BITIE/index.html">
                 <div class="form-group">
                     <input type="email" class="form-control" placeholder="用户名" required="">
                 </div>
@@ -49,14 +32,7 @@
             </form>
         </div>
     </div>
-
-    <!-- 全局js -->
-    <script src="js/jquery.min.js?v=2.1.4"></script>
-    <script src="js/bootstrap.min.js?v=3.3.6"></script>
-
-    
-    
-
-</body>
-
-</html>
+{% endblock %}
+{% block footer %}
+    {{ super() }}
+{% endblock %}

@@ -18,6 +18,17 @@ init_page=Blueprint('init_page',__name__)
 '''
 
 
+
+@init_page.route('/entity_extend.html')
+def entity_extend():
+	'''
+	实体扩展
+	:return:
+	'''
+	return render_template('pages/entity_extend.html')
+
+
+
 @init_page.route('/word_embedding.html')
 def word_embedding():
 	'''
