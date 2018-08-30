@@ -1,0 +1,245 @@
+{% extends "basic.html" %}
+
+{% block title %}首页{% endblock %}
+
+{% block head %}
+{{ super() }}
+<!-- 第三方插件 -->
+<link href={{ url_for('static',filename="css/plugins/footable/footable.core.css") }} rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<body class="gray-bg">
+<div class="row wrapper border-bottom white-bg page-heading">
+    <div class="col-sm-4">
+        <h2>信息抽取基础-<strong>实体扩展</strong></h2>
+        <ol class="breadcrumb">
+            <li>
+                <a href="main/main.html">主页</a>
+            </li>
+            <li>
+                <strong>实体扩展</strong>
+            </li>
+        </ol>
+    </div>
+    <div class="col-sm-8">
+        <div class="title-action">
+            <a href="main/main.html" class="btn btn-primary">打开主页</a>
+        </div>
+    </div>
+</div>
+
+<div class="wrapper wrapper-content animated fadeIn">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>输入数据</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="page-container">
+                        <div class="form-group">
+                            <label for="title" class="sr-only">word2</label>
+                            <input placeholder="请输入多个实体单词，推荐三个单词，单词之间用空格隔开　" id="words" class="form-control">
+                        </div>
+                        <div class="hr-line-dashed"></div>
+                    </div>
+                    <a onclick="process();" style="margin-right: 20px;" class="btn btn-primary pull-right">开始处理</a>
+                    <p>&nbsp;</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<div id="myloading" hidden class="wrapper wrapper-content animated fadeIn">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-content">
+                    <h3 style="color: #7266ba">
+                        正在处理,请稍后......
+                    </h3>
+                    <div class="page-container">
+                        <center><img src={{url_for('static',filename="img/loading.svg")}}/></center>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="wrapper wrapper-content animated fadeIn">
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="ibox float-e-margins">
+                <div class="ibox-title">
+                    <h5>输出结果</h5>
+                </div>
+                <div class="ibox-content">
+                    <div class="page-container">
+                        <textarea id="output_area" class="form-control"
+                                  style="margin: 0px -2px 0px 0px;height: 150px;resize: none"></textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</body>
+{% endblock %}
+{% block footer %}
+{{ super() }}
+
+
+<!--数据下载-->
+<script src={{ url_for('static',filename="js/plugins/footable/footable.all.min.js") }}></script>
+
+<script >
+$('#words').on('keypress',function(event){
+        if(event.keyCode == 13) {
+           process();
+        }
+});
+
+window.onload = function () {
+    $('.footable').footable();
+}
+
+function upload_file() {
+    var files = $('input[name="myfile"]').prop('files');//获取到文件列表
+    var file = files[0];
+    if (file == undefined) {
+        swal({
+            title: "提示信息",
+            type: "warning",
+            showCancelButton: false,
+            confirmButtonColor: '#DD6B55',
+            text: "第一步：先选择一个文本文件！"
+        });
+    }
+    else {
+        var form = new FormData();
+        form.append('myfile', file);
+        $.ajax({
+            url: "/BITIE/upload",
+            type: "post",
+            data: form,
+            timeout: 30000,//10s
+            cache: false,
+            processData: false,
+            contentType: false,
+            success: function (data) {
+                upload_callback(data);
+            },
+            error: function (XMLHttpRequest, status) { //求完成后最终执行参数
+                swal({
+                    title: "错误信息",
+                    type: "error",
+                    showCancelButton: false,
+                    confirmButtonColor: '#DD6B55',
+                    text: "status:" + XMLHttpRequest.status + " textinfo:" + status
+                });
+                $("#myloading").hide();
+            }
+        });
+    }
+}
+
+function upload_callback(data) {
+    if (data['status']) {
+        swal({
+            title: "上传成功",
+            type: "success",
+            showCancelButton: false,
+            showConfirmButton: false,
+            timer: 900
+        })
+        //阻塞，同步
+        setTimeout(function () {
+            //控制前台展示的文本数量
+            if (data['text'].length > 1000) {
+                show_text = data['text'].slice(0, 1000)
+                show_text += "\n......未完全显示......"
+            } else {
+                show_text = data['text']
+            }
+            $('#input_area').val(show_text);
+        }, 1000);
+
+    } else {
+        swal({
+            title: "错误信息",
+            type: "error",
+            showCancelButton: false,
+            confirmButtonColor: '#DD6B55',
+            text: data['desc']
+        });
+    }
+}
+
+function process() {
+    $('#mytbody').html('');
+    var words = $('#words').val();
+
+
+    if (words == '') {
+        swal({
+            title: "提示信息",
+            type: "warning",
+            showCancelButton: false,
+            confirmButtonColor: '#DD6B55',
+            text: "请输入数据！"
+        });
+    } else {
+        var form = new FormData();
+        form.append("words", words);
+
+        $.ajax({
+            url: "/BITIE/entity_extend",
+            type: "post",
+            data: form,
+            timeout: 50000,//50s
+            cache: false,
+            processData: false,
+            contentType: false,
+            beforeSend: function () {
+                $("#myloading").show();
+            },
+            success: function (data) {
+                $("#myloading").hide();
+                process_callback(data);
+            },
+            error: function (XMLHttpRequest, status) { //求完成后最终执行参数
+                $("#myloading").hide();
+                swal({
+                    title: "错误信息",
+                    type: "error",
+                    showCancelButton: false,
+                    confirmButtonColor: '#DD6B55',
+                    text: "status:" + XMLHttpRequest.status + " textinfo:" + status
+                });
+            }
+        });
+    }
+}
+
+function process_callback(data) {
+    var status = data['status']
+    result = data['result']
+    if (status) {
+        input_type = 0;
+        $('#words').val('');
+        $('#output_area').val(result);
+    } else {
+        swal({
+            title: "错误信息",
+            type: "error",
+            showCancelButton: false,
+            confirmButtonColor: '#DD6B55',
+            text: '不好意思，服务器出故障了！'
+        });
+    }
+}
+
+</script>
+{% endblock %}
